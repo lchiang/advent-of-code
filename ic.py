@@ -28,13 +28,10 @@ def intercode(code, conn):
     i = 0
     #print('intercode', code[i], i, input_val)
     r = 0 #relative base
-    d = code
-    if d[i]==99:
-        conn.send('HALT')
-        
+    d = code      
         
     while (d[i]!=99):
-        #print('instruction',i,':', d[i])
+        #print('instruction',i,':', d[i:i+3])
         #print(d[:20], d[99:102])
         opcode = d[i]%100
             
@@ -80,6 +77,8 @@ def intercode(code, conn):
 
         else:
             break
+        
+    conn.send('HALT')
 
         
 def param7(d, i, param_num):
@@ -98,16 +97,16 @@ def param_write7(d, i, param_num):
 
 
     
-def intercode7(code, conn):
+def intercode7(code, inq, outq):
     i = 0
     #print('intercode', code[i], i, input_val)
     d = code
     if d[i]==99:
         conn.send('HALT')
         
-        
+    import os
     while (d[i]!=99):
-        #print('instruction',i,':', d[i])
+        print(os.getpid(), 'instruction',i,':', d[i])
         #print(d[:20], d[99:102])
         opcode = d[i]%100
             
@@ -122,15 +121,20 @@ def intercode7(code, conn):
             i += 4
             
         elif (opcode == 3):
-            #print('INTERCODE: waiting for input')
-            d[param_write7(d,i,1)]=conn.recv()
-            #print('INTERCODE: receiving', d[param_write7(d,i,1)])
+            print(os.getpid(), 'INTERCODE: waiting for input')
+            #d[param_write7(d,i,1)]=conn.recv()
+            d[param_write7(d,i,1)]=inq.get()
+            print(os.getpid(), 'INTERCODE: receiving', d[param_write7(d,i,1)])
             i += 2        
             
         elif (opcode == 4):        
             #print(param7(d,i,1))
-            conn.send(param7(d,i,1))
-            #print('INTERCODE: sending', param7(d,i,1))
+            #conn.send(param7(d,i,1))
+            outq.put(param7(d,i,1))
+            print('|||',i, param(d,i,1,r))
+            print(os.getpid(), 'INTERCODE: sending', param7(d,i,1))
+            break
+            
             i += 2
             
         elif (opcode == 5):

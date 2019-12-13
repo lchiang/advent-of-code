@@ -33,7 +33,7 @@ def param_write(d, i, param_num):
     
 def intercode(input_val, code, i):    
     while (d[i]!=99):
-        #print('instruction:', d[i])
+        #print('instruction',i,':', d[i:i+3])
         #print(d, i, d[i])
         opcode = d[i]%100
 
@@ -53,7 +53,6 @@ def intercode(input_val, code, i):
             i += 2
             
         elif (opcode == 4):
-            print('|||', param(d,i,1))
             return param(d,i,1)
             i += 2
             
@@ -79,10 +78,10 @@ def intercode(input_val, code, i):
 
 
 def runintercode(code, input_val):
-    import ic
+    print("################runintercode")
     parent_conn, child_conn = multiprocessing.Pipe()
-    ic = multiprocessing.Process(target=ic.intercode, args=(code, child_conn))
-    ic.start()
+    icp = multiprocessing.Process(target=ic.intercode7, args=(code, child_conn))
+    icp.start()
 
     while input_val:
         parent_conn.send(input_val.pop())
@@ -90,47 +89,23 @@ def runintercode(code, input_val):
     output_val = parent_conn.recv()
     print("################", output_val)
 
-    ic.kill()
+    icp.kill()
     return output_val
 
 def try_seq(seq, d):
     '''
     #print(111)
     out = runintercode(d.copy(), [seq[0],0])
-    #print(222)
-    out = runintercode(d.copy(), [seq[1],out])
-    #print(333)
-    out = runintercode(d.copy(), [seq[2],out])
-    #print(444)
-    out = runintercode(d.copy(), [seq[3],out])
-    #print(555)
-    out = runintercode(d.copy(), [seq[4],out])
-    #print(666)
-    
 
-    '''
-
+    '''    
     out = intercode([seq[0],0], d.copy(), 0)
-    print(out)
     out = intercode([seq[1],out], d.copy(), 0)
-    print(out)
     out = intercode([seq[2],out], d.copy(), 0)
-    print(out)
     out = intercode([seq[3],out], d.copy(), 0)
-    print(out)
     out = intercode([seq[4],out], d.copy(), 0)
-    print(out)
-    
-
-    print('=====================try_seq', seq)
     return out
 
-
-if __name__ == '__main__':
-    f = open('input07a.txt')
-    d = f.readline().split(',')
-    d = list(map(int, d))
-
+def part1():
     max_out = 0
     import itertools
     for x in itertools.permutations([0,1,2,3,4], 5):
@@ -139,6 +114,57 @@ if __name__ == '__main__':
             max_out = oo
             print(max_out)
     print(max_out)
+    
+if __name__ == '__main__':
+    f = open('input07a.txt')
+    d = f.readline().split(',')
+    d = list(map(int, d))
+
+    #part1():
+
+    seq = [9,8,7,6,5]
+
+    abq = multiprocessing.Queue()
+    bcq = multiprocessing.Queue()
+    cdq = multiprocessing.Queue()
+    deq = multiprocessing.Queue()
+    eaq = multiprocessing.Queue()
+    
+    
+    abq.put([seq[0],0])
+    bcq.put(seq[1])
+    cdq.put(seq[2])
+    deq.put(seq[3])
+    eaq.put(seq[4])
+
+    
+    icp_a = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), eaq, abq))
+    icp_b = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), abq, bcq))
+    icp_c = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), bcq, cdq))
+    icp_d = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), cdq, deq))    
+    icp_e = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), deq, eaq))
+
+    icp_a.start()
+    icp_b.start()
+    icp_c.start()
+    icp_d.start()
+    icp_e.start()
+
+    print('a', icp_a.pid)
+    print('b', icp_b.pid)
+    print('c', icp_c.pid)
+    print('d', icp_d.pid)
+    print('e', icp_e.pid)
+
+    #while input_val:
+    #    parent_conn.send(input_val.pop())
+        
+    #output_val = parent_conn.recv()
+
+    
+
+
+    
 
 
 
