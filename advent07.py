@@ -1,7 +1,7 @@
 import multiprocessing
 import math
 import ic
-
+import time
 
 def param(d, i, param_num):
     mode = d[i]//(10*(10**param_num))%10
@@ -72,32 +72,8 @@ def intercode(input_val, code, i):
             
         else:
             break
-        #print(d)
-        
-    #print(d[0])
-
-
-def runintercode(code, input_val):
-    print("################runintercode")
-    parent_conn, child_conn = multiprocessing.Pipe()
-    icp = multiprocessing.Process(target=ic.intercode7, args=(code, child_conn))
-    icp.start()
-
-    while input_val:
-        parent_conn.send(input_val.pop())
-        
-    output_val = parent_conn.recv()
-    print("################", output_val)
-
-    icp.kill()
-    return output_val
 
 def try_seq(seq, d):
-    '''
-    #print(111)
-    out = runintercode(d.copy(), [seq[0],0])
-
-    '''    
     out = intercode([seq[0],0], d.copy(), 0)
     out = intercode([seq[1],out], d.copy(), 0)
     out = intercode([seq[2],out], d.copy(), 0)
@@ -115,61 +91,56 @@ def part1():
             print(max_out)
     print(max_out)
     
+def try_seq_2(seq, d):
+    try:
+        e_out = 0
+        proc_a, conn_a = ic.start_intercode_process(d.copy())
+        conn_a.send(seq[0])
+        proc_b, conn_b = ic.start_intercode_process(d.copy())
+        conn_b.send(seq[1])
+        proc_c, conn_c = ic.start_intercode_process(d.copy())
+        conn_c.send(seq[2])
+        proc_d, conn_d = ic.start_intercode_process(d.copy())
+        conn_d.send(seq[3])
+        proc_e, conn_e = ic.start_intercode_process(d.copy())
+        conn_e.send(seq[4])
+        conn_a.send(0)    
+        while True:
+            conn_b.send(conn_a.recv())
+            conn_c.send(conn_b.recv())    
+            conn_d.send(conn_c.recv())    
+            conn_e.send(conn_d.recv())    
+            result_e = conn_e.recv()
+            if result_e != 'HALT':
+                e_out = int(result_e)
+            if not proc_a.is_alive():
+                break
+            conn_a.send(result_e)
+    except:
+        #print('pipe closed')
+        i=0
+    return int(e_out)
+
+def part2():
+    max_out = 0
+    import itertools
+    for x in itertools.permutations([5,6,7,8,9], 5):
+        oo = try_seq_2(x, d.copy())
+        if oo > max_out:
+            max_out = oo
+            print(x, max_out)
+    print(max_out)
+
 if __name__ == '__main__':
-    f = open('input07a.txt')
+    f = open('input07.txt')
     d = f.readline().split(',')
     d = list(map(int, d))
 
-    #part1():
+    print('Part 1')
+    part1()
 
-    seq = [9,8,7,6,5]
-
-    abq = multiprocessing.Queue()
-    bcq = multiprocessing.Queue()
-    cdq = multiprocessing.Queue()
-    deq = multiprocessing.Queue()
-    eaq = multiprocessing.Queue()
-    
-    
-    abq.put([seq[0],0])
-    bcq.put(seq[1])
-    cdq.put(seq[2])
-    deq.put(seq[3])
-    eaq.put(seq[4])
-
-    
-    icp_a = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), eaq, abq))
-    icp_b = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), abq, bcq))
-    icp_c = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), bcq, cdq))
-    icp_d = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), cdq, deq))    
-    icp_e = multiprocessing.Process(target=ic.intercode7, args=(d.copy(), deq, eaq))
-
-    icp_a.start()
-    icp_b.start()
-    icp_c.start()
-    icp_d.start()
-    icp_e.start()
-
-    print('a', icp_a.pid)
-    print('b', icp_b.pid)
-    print('c', icp_c.pid)
-    print('d', icp_d.pid)
-    print('e', icp_e.pid)
-
-    #while input_val:
-    #    parent_conn.send(input_val.pop())
-        
-    #output_val = parent_conn.recv()
-
-    
-
-
-    
-
-
-
-
-
+    print('Part 2')
+    part2()
 
 
     
