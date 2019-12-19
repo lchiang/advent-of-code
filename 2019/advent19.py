@@ -11,8 +11,30 @@ def printscreen(m, score):
     print('Score', score)
 
 def test_pt(d,x,y):
-    o = ic.intercode_one_output(d.copy(), [x, y])
+    o = ic.intercode_one_output(d, [x, y])
     print(x, y, ':', o)
+
+def printRange(code, start_x, start_y, size_x=80, size_y=10):
+    m = [['' for x in range(size_x)] for y in range(size_y)]
+    for j in range(size_y):
+        first = -1
+        last = -1
+        for i in range(size_x):
+            x = start_x + i
+            y = start_y + j
+            o = ic.intercode_one_output(code, [x,y])
+            m[j][i] = o
+#            if o == 1:
+#                affected_cnt += 1
+            if (first == -1) and (o == 1):
+                first = x
+            if (first != -1) and (last == -1) and (o == 0):
+                last = x-1
+
+#           print(x, y, ))
+        print(''.join([str(x) for x in m[j]]), 'Line:',y, first, last, last-first+1)
+
+
 
 if __name__ == '__main__':
     f = open('input19.txt')
@@ -20,15 +42,31 @@ if __name__ == '__main__':
     d = list(map(int, d))
     d += [0 for x in range(50000)]
     
-
+    printRange(d, 28900,49000, 100, 5)
+    printRange(d, 37100,49000, 100, 5)
     # initialize board
     #block_cnt, score = 0, 0
     #ball_at, paddle_at = 99, 99
     rng = 60
     m = [['' for x in range(rng)] for y in range(rng)]
 
-    
-    #print(ic.intercode_one_output(d.copy(), [1,1]))            
+    #check box
+    box_x = 16
+    box_y = 25
+    box_size = 3
+
+    test_pt(d,box_x+box_size-1,box_y)
+    test_pt(d,box_x,box_y+box_size-1)
+
+    box_x = 15
+    box_y = 23
+    box_size = 3
+
+    test_pt(d,box_x+box_size-1,box_y)
+    test_pt(d,box_x,box_y+box_size-1)
+
+
+    #print(ic.intercode_one_output(d, [1,1]))            
     
     affected_cnt = 0
   
@@ -37,7 +75,7 @@ if __name__ == '__main__':
         first = -1
         last = -1
         for x in range(rng):
-            o = ic.intercode_one_output(d.copy(), [x,y])
+            o = ic.intercode_one_output(d, [x,y])
             m[y][x] = o
             if o == 1:
                 affected_cnt += 1
@@ -59,7 +97,7 @@ if __name__ == '__main__':
     '''
     # init game process
     parent_conn, child_conn = multiprocessing.Pipe()
-    icp = multiprocessing.Process(target=ic.intercode, args=(d.copy(), child_conn))
+    icp = multiprocessing.Process(target=ic.intercode, args=(d, child_conn))
     icp.start()
     
     parent_conn.send(1)

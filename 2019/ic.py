@@ -83,7 +83,7 @@ def intercode(code, conn):
 def intercode_one_output(code, input_list):
     i = 0
     r = 0 #relative base
-    d = code              
+    d = code.copy()
     while (d[i]!=99):
         opcode = d[i]%100            
         if (opcode == 1):
