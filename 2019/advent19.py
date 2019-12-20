@@ -42,28 +42,21 @@ if __name__ == '__main__':
     d = list(map(int, d))
     d += [0 for x in range(50000)]
     
-    printRange(d, 28900,49000, 100, 5)
-    printRange(d, 37100,49000, 100, 5)
+    printRange(d, 630,950, 120, 5)
+    #printRange(d, 37100,49000, 100, 5)
     # initialize board
     #block_cnt, score = 0, 0
     #ball_at, paddle_at = 99, 99
-    rng = 60
+    rng = 20
     m = [['' for x in range(rng)] for y in range(rng)]
 
-    #check box
-    box_x = 16
-    box_y = 25
-    box_size = 3
-
-    test_pt(d,box_x+box_size-1,box_y)
-    test_pt(d,box_x,box_y+box_size-1)
-
-    box_x = 15
-    box_y = 23
-    box_size = 3
-
-    test_pt(d,box_x+box_size-1,box_y)
-    test_pt(d,box_x,box_y+box_size-1)
+    def canfit(x,y,size):
+        print('== can fit? ==', x, y, size)
+        top_right = ic.intercode_one_output(d, [x+size-1,y])
+        bottom_left = ic.intercode_one_output(d, [x,y+size-1])
+        print(top_right, x+size-1,y)
+        print(bottom_left, x,y+size-1)
+        return (top_right==1 and bottom_left==1)
 
 
     #print(ic.intercode_one_output(d, [1,1]))            
@@ -87,14 +80,80 @@ if __name__ == '__main__':
 #           print(x, y, ))
         print(''.join([str(x) for x in m[y]]), y, first, last, last-first+1)
 
-    print(affected_cnt)
 
+    '''
+    for i in range(6543218, 6543218):
+        test_pt(d,i//2,i)
+        test_pt(d,i//3*2,i)
+        test_pt(d,i//4*3,i)
+        test_pt(d,i//5*4,i)
+        print('--')
+    '''
+
+
+    
+    def find_first1(yy):
+        low_x = yy//2
+        high_x = yy//3*2
+        while high_x - low_x > 1:
+            mid_x = (low_x + high_x)//2
+            mid_val = ic.intercode_one_output(d, [mid_x, yy])
+            if mid_val == 0:
+                low_x = mid_x
+            else:
+                high_x = mid_x
+            #print(low_x, mid_x, high_x, ic.intercode_one_output(d, [low_x, yy]),\
+            #    ic.intercode_one_output(d, [mid_x, yy]), ic.intercode_one_output(d, [high_x, yy]))
+        return mid_x
+
+    def find_last1(yy):
+        low_x = yy//4*3
+        high_x = yy//5*4
+        while high_x - low_x > 1:
+            mid_x = (low_x + high_x)//2
+            mid_val = ic.intercode_one_output(d, [mid_x, yy])
+            if mid_val == 1:
+                low_x = mid_x
+            else:
+                high_x = mid_x
+            #print(low_x, mid_x, high_x, ic.intercode_one_output(d, [low_x, yy]),\
+            #    ic.intercode_one_output(d, [mid_x, yy]), ic.intercode_one_output(d, [high_x, yy]))
+        return mid_x
+
+    #find_first1(6543218)
+    #find_last1(6543218)
+
+    def canfit_on_line(y):
+        x = find_last1(y)
+        return canfit(x-100,y,100)
+
+    low = 0
+    high = 10000
+
+    while high - low > 1:
+        mid = (low + high)//2
+        if canfit_on_line(mid):
+            high = mid
+        else:
+            low = mid
+
+        print(low, mid, high)
+
+    print(canfit_on_line(951))
+    print(canfit_on_line(952))
+    print(canfit_on_line(949))
+    print(canfit_on_line(950))
+    '''
     test_pt(d,28,49)
     test_pt(d,29,49)
 
     test_pt(d,37,49)
     test_pt(d,38,49)
-    '''
+
+    
+
+
+
     # init game process
     parent_conn, child_conn = multiprocessing.Pipe()
     icp = multiprocessing.Process(target=ic.intercode, args=(d, child_conn))
