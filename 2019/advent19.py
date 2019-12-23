@@ -81,15 +81,6 @@ if __name__ == '__main__':
         print(''.join([str(x) for x in m[y]]), y, first, last, last-first+1)
 
 
-    '''
-    for i in range(6543218, 6543218):
-        test_pt(d,i//2,i)
-        test_pt(d,i//3*2,i)
-        test_pt(d,i//4*3,i)
-        test_pt(d,i//5*4,i)
-        print('--')
-    '''
-
 
     
     def find_first1(yy):
@@ -125,7 +116,7 @@ if __name__ == '__main__':
 
     def canfit_on_line(y):
         x = find_last1(y)
-        return canfit(x-100,y,100)
+        return canfit(x-99,y,100)
 
     low = 0
     high = 10000
@@ -137,76 +128,16 @@ if __name__ == '__main__':
         else:
             low = mid
 
-        print(low, mid, high)
+#        print(low, mid, high)
 
-    print(canfit_on_line(951))
-    print(canfit_on_line(952))
     print(canfit_on_line(949))
-    print(canfit_on_line(950))
-    '''
-    test_pt(d,28,49)
-    test_pt(d,29,49)
+    print(canfit_on_line(948))
+    print(canfit_on_line(947))
+    print(canfit_on_line(946))
+    print(canfit_on_line(945))
+   
+    print(619*10000+948)
 
-    test_pt(d,37,49)
-    test_pt(d,38,49)
+    printRange(d, 719-2 , 949-2, 5, 5)
+    printRange(d, 620-2 , 1048-2, 5, 5)
 
-    
-
-
-
-    # init game process
-    parent_conn, child_conn = multiprocessing.Pipe()
-    icp = multiprocessing.Process(target=ic.intercode, args=(d, child_conn))
-    icp.start()
-    
-    parent_conn.send(1)
-    parent_conn.send(0)
-    print('10', parent_conn.recv())    
-    parent_conn.send(2)
-    parent_conn.send(0)
-    print('20', parent_conn.recv())   
-
-    while True:
-        ball_moved = False
-        o = parent_conn.recv()
-        if (o == 'HALT'):
-            break
-        else:
-            x = 0
-            y = 0
-
-            y = parent_conn.recv()
-            t = parent_conn.recv()
-            if (x == -1) and (y == 0):
-                score = t
-            elif t == 0:
-                s = ' '
-            elif t == 1:
-                s = 'W'
-            elif t == 2:
-                block_cnt += 1
-                s = 'B'
-            elif t == 3:
-                s = '_'
-                paddle_at = x
-            elif t == 4:
-                s = 'o'
-                ball_at = x
-                ball_moved = True
-            else:
-                s = ' '
-            m[y][x] = s
-
-            if ball_moved:
-                printscreen(m, score) # suppress update for speed
-                if paddle_at > ball_at:
-                    parent_conn.send(-1)
-                elif paddle_at < ball_at:
-                    parent_conn.send(1)
-                else:
-                    parent_conn.send(0)
-    icp.join()
-    print('Part 1: block count', block_cnt)
-    print('Part 2: score', score)
-    
-    '''                
