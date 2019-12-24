@@ -1,5 +1,4 @@
 import multiprocessing
-import math
 import ic
 
 def move(bot, turn):
@@ -8,7 +7,6 @@ def move(bot, turn):
 
     # move
     if direction == '^':
-        print('^')
         if turn == 0: #left
             final_coor = (coor[0]-1, coor[1])
             final_dir = '<'
@@ -16,7 +14,6 @@ def move(bot, turn):
             final_coor = (coor[0]+1, coor[1])
             final_dir = '>'
     elif direction == 'v':
-        print('v')
         if turn == 0: #left
             final_coor = (coor[0]+1, coor[1])
             final_dir = '>'
@@ -24,7 +21,6 @@ def move(bot, turn):
             final_coor = (coor[0]-1, coor[1])
             final_dir = '<'
     elif  direction == '>':
-        print('>')
         if turn == 0: #left
             final_coor = (coor[0], coor[1]-1)
             final_dir = '^'
@@ -32,84 +28,84 @@ def move(bot, turn):
             final_coor = (coor[0], coor[1]+1)
             final_dir = 'v'
     elif direction == '<':
-        print('<')
         if turn == 0: #left
-            final_coor = (coor[0], coor[1]-1)
+            final_coor = (coor[0], coor[1]+1)
             final_dir = 'v'
         else: #right
-            final_coor = (coor[0], coor[1]+1)
+            final_coor = (coor[0], coor[1]-1)
             final_dir = '^'
 
     return (final_coor, final_dir)
-
-
 
 if __name__ == '__main__':
     f = open('input11.txt')
     d = f.readline().split(',')
     d = list(map(int, d))
-    d += [0 for x in range(3501519)]
+    d += [0 for x in range(35019)]
 
-    input_val = 0
-    
     parent_conn, child_conn = multiprocessing.Pipe()
-    ic = multiprocessing.Process(target=ic.intercode, args=(d, input_val, child_conn))
-    ic.start()
+    icp = multiprocessing.Process(target=ic.intercode, args=(d, child_conn))
+    icp.start()
+
+    '''
+    # === Part 1 ===
+    size_x = 90
+    size_y = 100
+    bot = ((size_x//2,size_y//2+30),'^')
+    parent_conn.send(0)
+    # ==============
+    '''
+    # === Part 2 ===
+    size_x = 120
+    size_y = 20
+    bot = ((size_x//2,size_y//2),'^')
+    parent_conn.send(1)
+    # ==============
 
     m = []
     painted = []
-    size = 5000
-    for y in range(size):
-        m.append([0 for x in range(size)])
-        painted.append([0 for x in range(size)])
+    for y in range(size_y):
+        m.append([0 for x in range(size_x)])
+        painted.append([0 for x in range(size_x)])
 
-    bot = ((size//2,size//2),'^')
-
-
-    def printm(m):
-        s = int(math.sqrt(len(m)))
-        for y in range(s):
-            l = [str(m[y][x]) for x in range(s)]
-            print(''.join(l))
-            
-
-    #printm(m)
+    def printm(m, bot):
+        mm = m.copy()
+        for y in range(len(mm)):
+            mm[y] = m[y].copy()
+        mm[bot[0][1]][bot[0][0]] = bot[1]
+        for y in range(len(mm)):
+            l = [str(mm[y][x]) for x in range(len(mm[y]))]
+            l = ''.join(l)
+            l = l.replace('0',' ').replace('1','@')
+            print(l)
     
     #   --->x
     #   |
     #   |
     #   V y
-    
-
-    parent_conn.send(0)
-
-    
-    
+   
+    print('entering loop') 
     col = parent_conn.recv()
     while col != 'HALT':
         turn = parent_conn.recv()
                
-        
         # paint
-        m[bot[0][0]][bot[0][1]] = col
-        painted[bot[0][0]][bot[0][1]] += 1
+        m[bot[0][1]][bot[0][0]] = col
+        painted[bot[0][1]][bot[0][0]] += 1
 
         # move
         bot = move(bot, turn)
-        #printm(m)
 
-        
-        parent_conn.send(m[bot[0][0]][bot[0][1]])
-        
+        parent_conn.send(m[bot[0][1]][bot[0][0]])
         col = parent_conn.recv()
-        
 
+    icp.join()
+    printm(m, bot)
     
-
-    print('HALT')    
-    ic.join()
-
-        
-        
-    print(output)
+    cnt = 0
+    for y in range(len(painted)):
+        for x in range(len(painted[y])):
+            if painted[y][x] > 0:
+                cnt += 1
+    print(cnt)
 
