@@ -1,4 +1,3 @@
-
 ll = open('in09.txt').read().splitlines()
 b = [[int(x) for x in l] for l in ll]
 x_max = len(b[0])
