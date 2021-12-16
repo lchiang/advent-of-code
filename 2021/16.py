@@ -1,23 +1,20 @@
 l = open('in16.txt').read().splitlines()[0]
-#l = 'C0015000016115A2E0802F182340'
+#l = '9C0141080250320F1802104A08'
 
-end_length = len(l) * 4
-
-hex_as_int = int(l, 16)
-hb = bin(hex_as_int)
-hb = hb[2:].zfill(end_length)
+hb = bin(int(l, 16))
+hb = hb[2:].zfill(len(l) * 4) # pad zero
 
 total_v = 0
 
 def read_packet(b):
-    print('read:', len(b), b)
-    i = 0
+    #print('read:', len(b))#, b)
+    i, result = 0, 0
 
     version = int(b[i:i+3],2)
     i+=3
     type_id = int(b[i:i+3],2)
     i+=3
-    print(i, 'version', version, 'type', type_id)
+    #print('version', version, 'type', type_id)
 
     global total_v
     total_v += version
@@ -28,36 +25,55 @@ def read_packet(b):
         while read_next:
             read_next = (b[i]=='1')
             lit += b[i+1: i+5]
-
             i += 5
-        print(i, '> literal >', int(lit,2))
+        #print('literal >', int(lit,2))
+        result = int(lit,2)
+
     else: #operator
         length_type_id = b[i]
         i += 1
+        vl = []
         if length_type_id == '0':
             sp_length = int(b[i:i+15],2)
             i += 15
-
             tl = 0
             while tl < sp_length:
-                print('will read pack with length', sp_length, 'from', i+tl)
-                tl += read_packet(b[i+tl:i+sp_length])
+                #print('> will read pack with length', sp_length, 'from', i+tl)
+                (l, v) = read_packet(b[i+tl:i+sp_length])
+                tl += l
+                vl.append(v)
             i += sp_length
-            print(i, 'done read pack')
-
+            #print(i, '> done read pack')
         else: # 1
             sp_num = int(b[i:i+11],2)
             i += 11
-            print('will read', sp_num, 'pack')
+            #print('> will read', sp_num, 'pack')
             for j in range(sp_num):
-                leng = read_packet(b[i:])
-                i += leng
+                (l, v) = read_packet(b[i:])
+                i += l
+                vl.append(v)
+            #print('> done read pack')
 
-    return i
+        if type_id == 0: # sum
+            result = sum(vl)
+        elif type_id == 1: # product
+            re = 1
+            for x in vl:
+                re = re * x
+            result = re
+        elif type_id == 2: # min
+            result = min(vl)
+        elif type_id == 3: # max
+            result = max(vl)
+        elif type_id == 5: # gt
+            result = 1 if vl[0] > vl[1] else 0
+        elif type_id == 6: # lt
+            result = 1 if vl[0] < vl[1] else 0
+        elif type_id == 7: # eq
+            result = 1 if vl[0] == vl[1] else 0
 
+    return (i,result) # length read, value
 
-
-
-read_packet(hb)
-
+(lll,vvv) = read_packet(hb)
 print('total version', total_v)
+print('result', vvv)
