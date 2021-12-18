@@ -3,8 +3,6 @@ import copy
 # https://adventofcode.com/2015/day/22
 
 class Ring:
-
-
     '''
     Magic Missile costs 53 mana. It instantly does 4 damage.
     Drain costs 73 mana. It instantly does 2 damage and heals you for 2 hit points.
@@ -12,33 +10,27 @@ class Ring:
     Poison costs 173 mana. It starts an effect that lasts for 6 turns. At the start of each turn while it is active, it deals the boss 3 damage.
     Recharge costs 229 mana. It starts an effect that lasts for 5 turns. At the start of each turn while it is active, it gives you 101 new mana.
     '''
-
-
-    def hitboss(self, damage):
-        self.b_hp -= max(1, damage)
-
     def effect(self):
         if self.timer_shield > 0:
             self.timer_shield -= 1
 
         if self.timer_poison > 0:
-            self.hitboss(3)
+            self.b_hp -= 3
             self.timer_poison -= 1
 
         if self.timer_recharge > 0:
             self.p_mana += 101
             self.timer_recharge -= 1
 
-
     def magic_missile(self):
         self.mana_used += 53
         self.p_mana -= 53
-        self.hitboss(4)
+        self.b_hp -= 4
 
     def drain(self):
         self.mana_used += 73
         self.p_mana -= 73
-        self.hitboss(2)
+        self.b_hp -= 2
         self.p_hp += 2
 
     def shield(self):
@@ -81,15 +73,11 @@ class Ring:
         getattr(Ring, spell)(self)
         if self.b_hp <= 0: return 'p' # player win
 
-        # Boss: Part B
-        self.p_hp -= 1
-        if self.p_hp <= 0: return 'b' # boss win
-
         # Boss: Effect
         self.effect()
         if self.b_hp <= 0: return 'p' # player win
 
-        # Boss: Cast Spell
+        # Boss: Hit
         self.p_hp -= max(1, self.b_damage - self.p_armor())
         if self.p_hp <= 0: return 'b' # boss win
 
@@ -99,16 +87,15 @@ class Ring:
 
     def __init__(self):
         '''
-        self.p_hp = 17
+        self.p_hp = 10
         self.p_mana = 250
-        self.b_hp = 13
+        self.b_hp = 14
         self.b_damage = 8
         '''
         self.p_hp = 50
         self.p_mana = 500
         self.b_hp = 55
         self.b_damage = 8
-
 
         self.timer_shield = 0
         self.timer_poison = 0
@@ -123,17 +110,15 @@ class Ring:
         m = self.p_mana
         if self.timer_recharge > 0:
             m = self.p_mana + 101
-
-
         if m >= 53:
             s.append('magic_missile')
         if m >= 73:
             s.append('drain')
-        if m >= 113 and self.timer_shield == 0:
+        if m >= 113 and self.timer_shield <= 1:
             s.append('shield')
-        if m >= 173 and self.timer_poison == 0:
+        if m >= 173 and self.timer_poison <= 1:
             s.append('poison')
-        if m >= 229 and self.timer_recharge == 0:
+        if m >= 229 and self.timer_recharge <= 1:
             s.append('recharge')
         return s
 
@@ -141,11 +126,9 @@ class Ring:
 min_m = 9999
 def fight(ring):
     for f in ring.get_avail_spells():
-        #if ring.mana_used > 1800: break
+        if ring.mana_used > 1300: break
         r = copy.deepcopy(ring)
-
         # r.print_status()
-
         result = r.turn(f)
         if result:
             if result == 'p':
@@ -156,24 +139,26 @@ def fight(ring):
             fight(r)
 
 
-# Part B  1382 too high
-
 r = Ring()
-
 fight(r)
 
 '''
 re = ''
+r.print_status()
+re = r.turn('recharge')
+print(re)
+r.print_status()
+re = r.turn('shield')
+print(re)
+r.print_status()
+re = r.turn('drain')
+print(re)
 r.print_status()
 re = r.turn('poison')
 print(re)
 r.print_status()
 re = r.turn('magic_missile')
 print(re)
-r.print_status()
-re = r.turn('magic_missile')
-print(re)
-r.print_status()
 '''
 
 print(min_m)
