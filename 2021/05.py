@@ -16,26 +16,22 @@ for line in inputfile:
     x1, y1 = [int(a) for a in ll[0].split(',')]
     x2, y2 = [int(a) for a in ll[1].split(',')]
     #print(x1, y1, '-', x2, y2)
-    if x1 == x2:
-        yl = [y for y in range(min(y1,y2),max(y1,y2)+1,1)]
-        #print('y', yl)
+    if x1 == x2: # |
+        yl = list(range(min(y1,y2),max(y1,y2)+1,1))
         for y in yl:
             b[y][x1] += 1
-    elif y1 == y2:
-        xl = [x for x in range(min(x1,x2),max(x1,x2)+1,1)]
-        #print('x', xl)
+    elif y1 == y2: # -
+        xl = list(range(min(x1,x2),max(x1,x2)+1,1))
         for x in xl:
             b[y1][x] += 1
-    elif x1-x2 == y1-y2:
-        #print('\\', x1, y1, '-', x2, y2) 
-        xl = [x for x in range(min(x1,x2),max(x1,x2)+1,1)]
-        yl = [y for y in range(min(y1,y2),max(y1,y2)+1,1)]
+    elif x1-x2 == y1-y2: # \
+        xl = list(range(min(x1,x2),max(x1,x2)+1,1))
+        yl = list(range(min(y1,y2),max(y1,y2)+1,1))
         for i in range(len(xl)):
             b[yl[i]][xl[i]] += 1
-    else:
-        #print('/', x1, y1, '-', x2, y2) 
-        xl = [x for x in range(max(x1,x2),min(x1,x2)-1,-1)]
-        yl = [y for y in range(min(y1,y2),max(y1,y2)+1,1)]
+    else: # /
+        xl = list(range(max(x1,x2),min(x1,x2)-1,-1))
+        yl = list(range(min(y1,y2),max(y1,y2)+1,1))
         for i in range(len(xl)):            
             b[yl[i]][xl[i]] += 1
 

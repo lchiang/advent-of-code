@@ -11,7 +11,7 @@ def printscreen(m, score):
     print('Score', score)
 
 if __name__ == '__main__':
-    f = open('input13.txt')
+    f = open('./2019/input13.txt')
     d = f.readline().split(',')
     d = list(map(int, d))
     d += [0 for x in range(50000)]
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     parent_conn, child_conn = multiprocessing.Pipe()
     icp = multiprocessing.Process(target=ic.intercode, args=(d, child_conn))
     icp.start()
-    
+
     while True:
         ball_moved = False
         o = parent_conn.recv()
@@ -64,8 +64,8 @@ if __name__ == '__main__':
                     parent_conn.send(1)
                 else:
                     parent_conn.send(0)
-                
+
     icp.join()
     print('Part 1: block count', block_cnt)
     print('Part 2: score', score)
-    
+
