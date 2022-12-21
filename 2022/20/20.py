@@ -1,63 +1,34 @@
 ll = open('./2022/20/test.txt').read().splitlines()
-#ll = open('./2022/20/input.txt').read().splitlines()
+ll = open('./2022/20/input.txt').read().splitlines()
 
-l = [int(x) for x in ll]
+k = 811589153
 
+import copy
+class Number:
+    def __init__(self, val) -> None:
+        self.val = val
 
-l = [1, -1, -2, 3, -5, 0, 4]
-print(l)
-o = l.copy()
+l = []
+for x in ll:
+    l.append(Number(int(x)*k)) # k=1 for part A
 
+o = copy.copy(l)
 
-i = 0
-for x in o:
-    b4_i = l.index(x)
-    l.pop(b4_i)
-    at_i = (b4_i + x)%(len(o)-1)
+for iii in range(10): # run once for part A
+    i = 0
+    for x in o:
+        b4_i = l.index(x)
+        at_i = (b4_i + x.val)%(len(o)-1)
+        p = l.pop(b4_i)
+        if at_i == 0:
+            at_i = len(o)-1
+        l.insert(at_i, p)
+        #print([k.val for k in l], 'cycle',i,':', x.val, 'pos', b4_i, 'to', at_i)
+        i+=1
+    #print([k.val for k in l], iii)
 
-    if at_i<=0:
-        at_i = len(o)-1
-    l.insert(at_i, x)
-    print(l, 'cycle',i,':', x, 'pos', b4_i, 'to', at_i)
-    #print(l)
-    i+=1
-
-#assert([1, 2, -3, 4, 0, 3, -2]==l)
-
-
-ii = l.index(0)
-a = l[(ii+1000)%len(o)]
-b = l[(ii+2000)%len(o)]
-c = l[(ii+3000)%len(o)]
-print('Part A', a,b,c)
-print('Part A', a+b+c)
-'''
-Initial arrangement:
-1, 2, -3, 3, -2, 0, 4
-
-1 moves between 2 and -3:
-2, 1, -3, 3, -2, 0, 4
-
-2 moves between -3 and 3:
-1, -3, 2, 3, -2, 0, 4
-
--3 moves between -2 and 0:
-1, 2, 3, -2, -3, 0, 4
-
-3 moves between 0 and 4:
-1, 2, -2, -3, 0, 3, 4
-
--2 moves between 4 and 1:
-1, 2, -3, 0, 3, 4, -2
-
-0 does not move:
-1, 2, -3, 0, 3, 4, -2
-
-4 moves between -3 and 0:
-1, 2, -3, 4, 0, 3, -2
-
-
-wrong part A ans
--924
--188
-'''
+ii = [k.val for k in l].index(0)
+a = l[(ii+1000)%len(o)].val
+b = l[(ii+2000)%len(o)].val
+c = l[(ii+3000)%len(o)].val
+print(a+b+c)
